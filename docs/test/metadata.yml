@@ -1,0 +1,9 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: 测试API文档
+  description: 这是一个测试用文档，不应该展示
+  contact:
+    name: 高申翰
+servers:
+  - url: http://localhost:3000

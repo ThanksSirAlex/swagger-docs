@@ -1,0 +1,59 @@
+/pets:
+  get:
+    description: test
+    operationId: findPets
+    parameters:
+      - name: tags
+        in: query
+        description: tags to filter by
+        required: false
+        style: form
+        schema:
+          type: array
+          items:
+            type: string
+      - name: limit
+        in: query
+        description: maximum number of results to return
+        required: false
+        schema:
+          type: integer
+          format: int32
+    responses:
+      '200':
+        description: pet response
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Pet'
+      default:
+        description: unexpected error
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Error'
+  post:
+    description: Creates a new pet in the store. Duplicates are allowed
+    operationId: addPet
+    requestBody:
+      description: Pet to add to the store
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/NewPet'
+    responses:
+      '200':
+        description: pet response
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Pet'
+      default:
+        description: unexpected error
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Error'
