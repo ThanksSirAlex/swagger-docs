@@ -1,87 +1,51 @@
 const fs = require('fs')
-const fsPromises = require('fs').promises
 const path = require('path');
 const yaml = require('js-yaml');
 const glob = require("glob");
 
 
-async function generate() {
-    let docPath = path.join(__dirname, 'docs')
-    let projects = await fsPromises.readdir(docPath)
-        .then(files => files)
-        .catch(err => {
-            throw err
-        });
+let docPath = path.join(__dirname, 'docs');
+let projects = fs.readdirSync(docPath);
 
-    for (let project of projects) {
-        let projectPath = path.join(docPath, project)
-        let swagger = await fsPromises.readFile(path.join(projectPath, 'metadata.yaml'))
-            .then(data => yaml.safeLoad(data))
-            .catch(
-                await fsPromises.readFile(path.join(projectPath, 'metadata.yml'))
-                    .then(data => yaml.safeLoad(data))
-                    .catch(err => {
-                        throw err
-                    })
-            );
+for (let project of projects) {
+    let projectPath = path.join(docPath, project);
 
-        console.log(swagger)
+    // load swagger metafile
+    let metaFile = (fs.existsSync(`${projectPath}/metadata.yaml`)) ? (`${projectPath}/metadata.yaml`) : (`${projectPath}/metadata.yml`);
+    let swaggerJson = yaml.safeLoad(fs.readFileSync(metaFile));
+
+    // load tags if exists
+    if (fs.existsSync(`${projectPath}/tags.yml`) || fs.existsSync(`${projectPath}/tags.yaml`)) {
+        let tagsFile = fs.existsSync(`${projectPath}/tags.yml`) ? `${projectPath}/tags.yml` : `${projectPath}/tags.yaml`
+        swaggerJson['tags'] = yaml.safeLoad(fs.readFileSync(tagsFile))
     }
 
-    // fs.readdir(path.join(docPath), (err, projects) => {
-    //     if (err) throw err;
-    //     projects.forEach(projectName => {
-    //         let projectPath = path.join(docPath, projectName)
-    //
-    //         // initialize swagger, load metadata}
-    //         // fs.readFile(path.join(projectPath, 'metadata.yaml'), (err, data) => {
-    //         //     if (err) {
-    //         //         fs.readFile(path.join(projectPath, 'metadata.yml'), (err, data) => {
-    //         //             if (err) throw err
-    //         //             swagger = yaml.safeLoad(data)
-    //         //         })
-    //         //         return
-    //         //     }
-    //         //
-    //         //     swagger = yaml.safeLoad(data)
-    //         // })
-    //         let swagger = await (() => {
-    //             fsPromises.readFile(path.join(projectPath, 'metadata.yml'))
-    //                 .then(data => swagger = yaml.safeLoad(data))
-    //                 .catch(err => {
-    //                     fsPromises.readFile(path.join(projectPath, 'metadata.yaml'))
-    //                         .then(data => swagger = yaml.safeLoad(data))
-    //                         .catch(err => {
-    //                             throw err
-    //                         });
-    //                 });
-    //         })();
-    //
-    //         // load tags
-    //         fsPromises.readFile(path.join(projectPath, 'tags.yml'))
-    //             .then(data => swagger['tags'] = yaml.safeLoad(data))
-    //             .catch(err => {
-    //                 fsPromises.readFile(path.join(projectPath, 'tags.yaml'))
-    //                     .then(data => swagger['tags'] = yaml.safeLoad(data))
-    //                     .catch(err => console.log('tags not find. Continuing'))
-    //             });
-    //
-    //         // load paths
-    //         swagger['paths'] = {}
-    //         glob(docPath + '/paths/*.@(yml|yaml)', {}, function (err, files) {
-    //             if (err) throw err
-    //             files.forEach((pathFile) => {
-    //                 fsPromises.readFile(pathFile)
-    //                     .then(data => swagger['paths'] = {...swagger['paths'], ...yaml.safeLoad(data)})
-    //                     .catch(err => {
-    //                         throw err
-    //                     })
-    //             });
-    //         })
-    //
-    //         console.log(swagger)
-    //     });
-    // });
-};
+    // load paths
+    let pathsFiles = glob.sync(`docs/${project}/paths/**/*.@(yml|yaml)`);
+    for (let pathsFile of pathsFiles) {
+        swaggerJson['paths'] = {...swaggerJson['paths'], ...yaml.safeLoad(fs.readFileSync(pathsFile))};
+    }
 
-generate();
+    // load components if using swagger 3
+    if (swaggerJson['openapi']) {
+        let componentsFiles = glob.sync(`docs/${project}/components/**/*.@(yml|yaml)`);
+        for (let componentsFile of componentsFiles) {
+            swaggerJson['components'] = {...swaggerJson['components'], ...yaml.safeLoad(fs.readFileSync(componentsFile))};
+        }
+    } else if (swaggerJson['swagger']) {
+        // load definitions and securityDefinitions if using swagger 2
+        let definitionsFiles = glob.sync(`docs/${project}/definitions/**/*.@(yml|yaml)`);
+        for (let definitionsFile of definitionsFiles) {
+            swaggerJson['definitions'] = {...swaggerJson['definitions'], ...yaml.safeLoad(fs.readFileSync(definitionsFile))};
+        }
+
+        // load securityDefinitions if exist
+        if (fs.existsSync(projectPath + 'securityDefinitions.yml') || fs.existsSync(projectPath + 'securityDefinitions.yaml')) {
+            let securityDefinitionsFile = fs.existsSync(projectPath + 'securityDefinitions.yml') ? (projectPath + 'securityDefinitions.yml') : (projectPath + 'securityDefinitions.yaml')
+            swaggerJson['securityDefinitions'] = yaml.safeLoad(fs.readFileSync(securityDefinitionsFile))
+        }
+    }
+
+    let jsonFilePath = path.join(__dirname, 'public', 'swagger', `${project}.json`);
+    fs.writeFileSync(jsonFilePath, JSON.stringify(swaggerJson));
+}

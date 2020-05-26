@@ -6,7 +6,7 @@ const dashboardRoutes = [
   {
     path: "/swagger",
     name: "Swagger",
-    component: () => <SwaggerUI url = {process.env.PUBLIC_URL + '/swagger/swagger.json'} />
+    component: () => <SwaggerUI />
   },
   {
     path: "/user",
@@ -41,7 +41,7 @@ const dashboardRoutes = [
   {
     path: "/test",
     name: i18n.t('test'),
-    component: () => <SwaggerUI  />
+    component: () => <SwaggerUI url = {process.env.PUBLIC_URL + '/swagger/test.json'} />
   }
 ];
 
