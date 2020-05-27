@@ -1,9 +1,10 @@
 {
-  "name": "material-dashboard-react",
+  "name": "mimir",
   "version": "1.8.0",
-  "description": "Material Dashboard React. Coded by Creative Tim",
-  "private": false,
-  "main": "dist/index.js",
+  "description": "API DOCS",
+  "homepage": "https://localhost:3000",
+  "private": true,
+  "main": "src/index.js",
   "dependencies": {
     "@material-ui/core": "4.3.2",
     "classnames": "^2.2.6",
@@ -27,7 +28,7 @@
     "install:clean": "rm -rf node_modules/ && rm -rf package-lock.json && npm install && npm start",
     "lint:check": "eslint . --ext=js,jsx;  exit 0",
     "lint:fix": "eslint . --ext=js,jsx --fix;  exit 0",
-    "build-package-css": "cp src/assets/css/mimir.css dist/material-dashboard-react.css",
+    "build-package-css": "cp src/assets/css/mimir.css dist/Mimir.css",
     "build-package": "npm run build-package-css && babel src --out-dir dist",
     "build-swagger": ""
   },
@@ -36,12 +37,7 @@
     "url": "git+https://github.com/creativetimofficial/material-dashboard-react.git"
   },
   "keywords": [],
-  "author": "Creative Tim <hello@creative-tim.com> (https://www.creative-tim.com/)",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/creativetimofficial/material-dashboard-react/issues"
-  },
-  "homepage": "https://creativetimofficial.github.io/material-dashboard-react/#/dashboard",
+  "author": "ThanksSieAlex <gaoshenhan@dtcj.com> (https://github.com/ThanksSirAlex)",
   "optionalDependencies": {
     "@types/googlemaps": "3.37.3",
     "@types/markerclustererplus": "2.1.33",
