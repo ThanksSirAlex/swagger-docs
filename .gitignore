@@ -2,3 +2,4 @@ node_modules/
 public/swagger/*.json
 .idea
 build
+.vscode
