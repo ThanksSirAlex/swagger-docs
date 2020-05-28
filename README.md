@@ -1,2 +1,2 @@
-# Mimir
-北欧神话知识和智慧之神，内部api文档项目
+# swagger-docs
+swagger-docs id project to hold api docs base on swagger.
