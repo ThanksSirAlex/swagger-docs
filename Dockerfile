@@ -4,7 +4,7 @@ WORKDIR /mimir
 
 COPY package.json yarn.lock ./
 
-RUN yarn
+RUN yarn && yarn global add serve
 
 COPY ./ ./
 
