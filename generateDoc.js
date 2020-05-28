@@ -53,4 +53,4 @@ if (swaggerVersion === 2) {
     fs.writeFileSync(`${projectDir}/components/headers.yml`, yaml.safeDump({headers: {}}));
 }
 
-Console.log('Done')
+console.log('Done')
